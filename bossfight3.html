@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chapter 7 - Seven Sense Phoenix</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial;
+background:black;
+}
+
+/* BACKGROUND GALAKSI */
+#bg{
+position:fixed;
+width:200%;
+height:100%;
+background:url("galaxy.jpg") repeat-x;
+background-size:cover;
+animation:moveGalaxy 40s linear infinite;
+z-index:-1;
+}
+
+@keyframes moveGalaxy{
+from{transform:translateX(0);}
+to{transform:translateX(-50%);}
+}
+
+#arena{
+width:100vw;
+height:100vh;
+position:relative;
+}
+
+/* CHARACTER */
+.character{
+position:absolute;
+bottom:120px;
+width:220px;
+transition:0.3s;
+}
+
+#phoenix{
+left:120px;
+filter:drop-shadow(0 0 20px orange);
+}
+
+#aegayos{
+right:120px;
+filter:drop-shadow(0 0 20px purple);
+}
+
+/* HP BAR MODERN */
+.hpContainer{
+position:absolute;
+width:400px;
+height:25px;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 0 15px cyan;
+}
+
+#phoenixBarBox{
+top:30px;
+left:50px;
+}
+
+#aegayosBarBox{
+top:30px;
+right:50px;
+}
+
+.hpFill{
+height:100%;
+background:linear-gradient(to right,red,orange);
+transition:0.3s;
+}
+
+/* CONTROLS */
+#controls{
+position:absolute;
+bottom:30px;
+width:100%;
+text-align:center;
+}
+
+button{
+padding:15px 30px;
+margin:10px;
+font-size:18px;
+border:none;
+border-radius:30px;
+background:linear-gradient(to right,orange,yellow);
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 15px orange;
+}
+
+button:hover{
+transform:scale(1.1);
+}
+</style>
+</head>
+
+<body>
+
+<div id="bg"></div>
+
+<div id="arena">
+
+<!-- HP -->
+<div class="hpContainer" id="phoenixBarBox">
+<div class="hpFill" id="phoenixHP"></div>
+</div>
+
+<div class="hpContainer" id="aegayosBarBox">
+<div class="hpFill" id="bossHP"></div>
+</div>
+
+<!-- CHARACTER IMAGE -->
+<img src="aegayos.png" class="character" id="aegayos">
+<img src="phoenix.png" class="character" id="phoenix">
+
+<!-- CONTROLS -->
+<div id="controls">
+<button onclick="attack()">Attack</button>
+<button onclick="genmaKen()">Phoenix Genma Ken</button>
+<button id="ultimateBtn" onclick="ultimate()" style="display:none;">ULTIMATE</button>
+<button onclick="sevenSense()">7th Sense</button>
+</div>
+
+</div>
+
+<!-- MUSIC -->
+<audio id="bgm" src="battle.mp3" autoplay loop></audio>
+
+<script>
+let phoenixHP=500;
+let bossHP=650;
+let phase2=false;
+
+function updateHP(){
+document.getElementById("phoenixHP").style.width=phoenixHP+"px";
+document.getElementById("bossHP").style.width=bossHP+"px";
+
+if(phoenixHP<=250){
+document.getElementById("ultimateBtn").style.display="inline-block";
+}
+}
+
+function attack(){
+damageBoss(25);
+bossAttack();
+}
+
+function genmaKen(){
+damageBoss(45);
+bossAttack();
+}
+
+function ultimate(){
+document.body.style.filter="brightness(1.5)";
+setTimeout(()=>{
+damageBoss(150);
+document.body.style.filter="none";
+bossAttack();
+},1000);
+}
+
+function sevenSense(){
+document.getElementById("phoenix").style.filter="drop-shadow(0 0 40px red)";
+}
+
+function damageBoss(dmg){
+bossHP-=dmg;
+
+if(bossHP<=300 && !phase2){
+phase2=true;
+document.getElementById("aegayos").style.transform="scale(1.4)";
+document.getElementById("aegayos").style.filter="drop-shadow(0 0 40px darkred)";
+alert("AEGAYOS PHASE 2 - DEMON SEA FORM!");
+}
+
+if(bossHP<=0){
+alert("AEGAYOS DIKALAHKAN OLEH SEVEN SENSE PHOENIX!");
+location.reload();
+}
+
+updateHP();
+}
+
+function bossAttack(){
+phoenixHP-=30;
+if(phoenixHP<=0){
+alert("Phoenix Gugur...");
+location.reload();
+}
+updateHP();
+}
+
+updateHP();
+</script>
+
+</body>
+</html>

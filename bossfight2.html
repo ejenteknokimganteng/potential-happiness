@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chapter 6 - Final Battle</title>
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:black;
+font-family:Arial;
+color:white;
+}
+
+/* ARENA */
+#arena{
+position:relative;
+width:100vw;
+height:100vh;
+}
+
+/* CHARACTER */
+.player{
+position:absolute;
+width:60px;
+height:60px;
+border-radius:50%;
+}
+
+#player{background:cyan; left:100px; top:300px;}
+#boss{background:purple; left:600px; top:200px;}
+
+#dragon{background:orange; left:80px; top:200px;}
+#andromeda{background:pink; left:80px; top:400px;}
+#unicorn{background:lime; left:150px; top:500px;}
+
+/* HP BAR */
+.hpContainer{
+position:absolute;
+top:10px;
+left:10px;
+width:300px;
+height:20px;
+background:#333;
+}
+
+.hpBar{
+height:100%;
+background:red;
+width:100%;
+}
+
+#bossHPContainer{
+top:40px;
+height:28px; /* lebih tebal */
+}
+
+/* JOYSTICK */
+#joystickBase{
+position:absolute;
+bottom:20px;
+left:20px;
+width:140px;
+height:140px;
+background:rgba(255,255,255,0.1);
+border-radius:50%;
+}
+
+#joystickStick{
+position:absolute;
+width:60px;
+height:60px;
+background:white;
+border-radius:50%;
+left:40px;
+top:40px;
+}
+
+/* ATTACK BUTTON */
+#attackBtn{
+position:absolute;
+bottom:40px;
+right:40px;
+padding:15px 25px;
+background:red;
+color:white;
+border:none;
+font-size:18px;
+border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="arena">
+
+<!-- HP BAR -->
+<div class="hpContainer">
+<div id="playerHP" class="hpBar"></div>
+</div>
+
+<div id="bossHPContainer" class="hpContainer">
+<div id="bossHP" class="hpBar"></div>
+</div>
+
+<!-- CHARACTER -->
+<div id="player" class="player"></div>
+<div id="boss" class="player"></div>
+
+<div id="dragon" class="player"></div>
+<div id="andromeda" class="player"></div>
+<div id="unicorn" class="player"></div>
+
+<!-- JOYSTICK -->
+<div id="joystickBase">
+<div id="joystickStick"></div>
+</div>
+
+<button id="attackBtn">RYUSEIKEN</button>
+
+</div>
+
+<script>
+const player = document.getElementById("player");
+const boss = document.getElementById("boss");
+const dragon = document.getElementById("dragon");
+const andromeda = document.getElementById("andromeda");
+const unicorn = document.getElementById("unicorn");
+
+let playerHP = 500;
+let bossHP = 650;
+
+const playerHPBar = document.getElementById("playerHP");
+const bossHPBar = document.getElementById("bossHP");
+
+/* JOYSTICK */
+const base = document.getElementById("joystickBase");
+const stick = document.getElementById("joystickStick");
+
+let dragging=false;
+let center=70;
+let maxRadius=50;
+let moveX=0, moveY=0;
+
+base.addEventListener("touchstart",()=>dragging=true);
+
+base.addEventListener("touchmove",(e)=>{
+if(!dragging)return;
+
+const rect=base.getBoundingClientRect();
+const touch=e.touches[0];
+
+let dx=touch.clientX-rect.left-center;
+let dy=touch.clientY-rect.top-center;
+
+let dist=Math.sqrt(dx*dx+dy*dy);
+
+if(dist>maxRadius){
+dx=dx/dist*maxRadius;
+dy=dy/dist*maxRadius;
+}
+
+stick.style.left=center+dx-30+"px";
+stick.style.top=center+dy-30+"px";
+
+moveX=dx/maxRadius;
+moveY=dy/maxRadius;
+});
+
+base.addEventListener("touchend",()=>{
+dragging=false;
+stick.style.left="40px";
+stick.style.top="40px";
+moveX=0; moveY=0;
+});
+
+/* PLAYER MOVE */
+function gameLoop(){
+player.style.left=(player.offsetLeft+moveX*4)+"px";
+player.style.top=(player.offsetTop+moveY*4)+"px";
+requestAnimationFrame(gameLoop);
+}
+gameLoop();
+
+/* BOSS MOVE */
+let bossDX=3, bossDY=3;
+function moveBoss(){
+let x=boss.offsetLeft+bossDX;
+let y=boss.offsetTop+bossDY;
+
+if(x<0||x>window.innerWidth-60) bossDX*=-1;
+if(y<0||y>window.innerHeight-60) bossDY*=-1;
+
+boss.style.left=x+"px";
+boss.style.top=y+"px";
+
+requestAnimationFrame(moveBoss);
+}
+moveBoss();
+
+/* ATTACK BUTTON */
+document.getElementById("attackBtn").addEventListener("click",()=>{
+let damage=Math.floor(Math.random()*30)+20;
+bossHP-=damage;
+updateBossHP();
+});
+
+/* ALLY AI */
+function allyAttack(){
+let damage=
+(Math.floor(Math.random()*15)+10)+
+(Math.floor(Math.random()*10)+8)+
+(Math.floor(Math.random()*12)+9);
+
+bossHP-=damage;
+updateBossHP();
+}
+setInterval(allyAttack,1500);
+
+/* UPDATE HP */
+function updateBossHP(){
+if(bossHP<0) bossHP=0;
+bossHPBar.style.width=(bossHP/650*100)+"%";
+
+if(bossHP<=0){
+alert("Rhadamanthys");
+window.location.href="chapter7.html";
+}
+}
+
+/* BOSS ATTACK */
+setInterval(()=>{
+let damage=Math.floor(Math.random()*25)+15;
+playerHP-=damage;
+
+if(playerHP<0) playerHP=0;
+playerHPBar.style.width=(playerHP/500*100)+"%";
+
+if(playerHP<=0){
+alert("Pegasus Gugur...");
+location.reload();
+}
+},2000);
+
+</script>
+
+</body>
+</html>
