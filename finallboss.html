@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pegasus VS Aikakoss</title>
+
+<style>
+body{
+margin:0;
+background:black;
+color:white;
+font-family:Arial;
+overflow:hidden;
+text-align:center;
+}
+
+#game{
+position:relative;
+width:100vw;
+height:100vh;
+background:radial-gradient(#000014,#000);
+overflow:hidden;
+transition:0.3s;
+}
+
+.char{
+position:absolute;
+bottom:100px;
+width:220px;
+}
+
+#pegasus{left:10%;}
+#boss{right:10%;}
+
+.hpbar{
+width:300px;
+height:20px;
+background:#400;
+margin:5px auto;
+border-radius:10px;
+overflow:hidden;
+}
+
+.hpfill{
+height:100%;
+background:lime;
+width:100%;
+transition:0.3s;
+}
+
+button{
+padding:12px 25px;
+margin:10px;
+font-size:16px;
+cursor:pointer;
+}
+
+#text{
+position:absolute;
+top:18%;
+width:100%;
+font-size:36px;
+display:none;
+}
+
+#comboSaints{
+position:absolute;
+top:35%;
+left:50%;
+transform:translateX(-50%);
+display:none;
+}
+
+#comboSaints img{
+width:120px;
+margin:5px;
+}
+
+@keyframes shake{
+0%{transform:translate(0,0);}
+25%{transform:translate(8px,-8px);}
+50%{transform:translate(-8px,8px);}
+75%{transform:translate(8px,8px);}
+100%{transform:translate(0,0);}
+}
+
+</style>
+</head>
+<body>
+
+<div id="game">
+
+<h2>Pegasus</h2>
+<div class="hpbar"><div id="playerHP" class="hpfill"></div></div>
+
+<h2>Aikakoss</h2>
+<div class="hpbar"><div id="bossHP" class="hpfill"></div></div>
+
+<img id="pegasus" class="char" src="peg1.png">
+<img id="boss" class="char" src="aika1.png">
+
+<div id="text"></div>
+
+<div id="comboSaints">
+<img src="saint1.png">
+<img src="saint2.png">
+<img src="saint3.png">
+</div>
+
+<div style="position:absolute;bottom:20px;width:100%;">
+<button onclick="attack()">Attack</button>
+<button onclick="combo()">Combo 3 Saint</button>
+</div>
+
+</div>
+
+<script>
+
+let playerHP=100;
+let bossHP=200;
+let bossMaxHP=200;
+let phase2=false;
+
+let pegFrames=["peg1.png","peg2.png","peg3.png"];
+let bossFrames=["aika1.png","aika2.png","aikakos.png"];
+let bossPhase2Frames=["aika_phase2_1.png","aika_phase2_1.png","aika_phase2_1.png"];
+
+let pegIndex=0;
+let bossIndex=0;
+
+/* SPRITE ANIMATION */
+setInterval(()=>{
+pegIndex=(pegIndex+1)%pegFrames.length;
+document.getElementById("pegasus").src=pegFrames[pegIndex];
+},200);
+
+setInterval(()=>{
+bossIndex++;
+if(phase2){
+bossIndex%=bossPhase2Frames.length;
+document.getElementById("boss").src=bossPhase2Frames[bossIndex];
+}else{
+bossIndex%=bossFrames.length;
+document.getElementById("boss").src=bossFrames[bossIndex];
+}
+},200);
+
+function updateHP(){
+document.getElementById("playerHP").style.width=playerHP+"%";
+let percent=(bossHP/bossMaxHP)*100;
+document.getElementById("bossHP").style.width=percent+"%";
+}
+
+/* ATTACK */
+function attack(){
+if(bossHP<=0)return;
+
+bossHP-=15;
+updateHP();
+checkPhase();
+bossTurn();
+}
+
+/* COMBO 3 SAINT */
+function combo(){
+if(bossHP<=0)return;
+
+let text=document.getElementById("text");
+let comboImg=document.getElementById("comboSaints");
+let game=document.getElementById("game");
+
+text.innerText="TRINITY COSMO BURST!!!";
+text.style.display="block";
+comboImg.style.display="block";
+
+/* FLASH */
+document.body.style.background="white";
+setTimeout(()=>{document.body.style.background="black";},200);
+
+/* SLOW MOTION */
+game.style.transform="scale(0.95)";
+setTimeout(()=>{game.style.transform="scale(1)";},300);
+
+setTimeout(()=>{
+let dmg=phase2?60:40;
+bossHP-=dmg;
+updateHP();
+
+/* SHAKE */
+game.style.animation="shake 0.3s 3";
+
+setTimeout(()=>{
+game.style.animation="";
+comboImg.style.display="none";
+text.style.display="none";
+checkPhase();
+bossTurn();
+},600);
+
+},400);
+}
+
+/* PHASE CHECK */
+function checkPhase(){
+
+if(bossHP<=100 && !phase2){
+
+phase2=true;
+
+let text=document.getElementById("text");
+text.innerText="Aikakoss Phase 2 - GARUDA MODE!";
+text.style.display="block";
+
+/* Aura merah */
+document.getElementById("boss").style.filter="drop-shadow(0 0 25px red)";
+
+setTimeout(()=>{text.style.display="none";},2000);
+}
+
+if(bossHP<=0){
+let text=document.getElementById("text");
+text.innerText="AIKAKOSS HAS FALLEN!";
+text.style.display="block";
+}
+}
+
+/* BOSS TURN */
+function bossTurn(){
+if(bossHP<=0)return;
+
+setTimeout(()=>{
+let dmg=phase2?25:15;
+playerHP-=dmg;
+updateHP();
+
+if(phase2 && Math.random()>0.6){
+bossUltimate();
+}
+
+},700);
+}
+
+/* BOSS ULTIMATE */
+function bossUltimate(){
+
+let text=document.getElementById("text");
+text.innerText="GARUDA FLAME STORM!!!";
+text.style.display="block";
+
+setTimeout(()=>{
+playerHP-=35;
+updateHP();
+text.style.display="none";
+},1000);
+}
+
+updateHP();
+
+</script>
+</body>
+</html>
